@@ -1,0 +1,32 @@
+{
+  "name": "serverless-plugin-ssm-document",
+  "version": "1.0.0",
+  "description": "Serverless plugin to easily create SSM documents",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/daaru00/serverless-plugin-ssm-document.git"
+  },
+  "keywords": [
+    "serverless",
+    "aws",
+    "ssm-document"
+  ],
+  "author": "Fabio Gollinucci",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/daaru00/serverless-plugin-ssm-document/issues"
+  },
+  "homepage": "https://github.com/daaru00/serverless-plugin-ssm-document#readme",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0"
+  },
+  "dependencies": {
+    "js-yaml": "^3.13.1"
+  }
+}
