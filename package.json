@@ -1,6 +1,6 @@
 {
   "name": "serverless-plugin-ssm-document",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Serverless plugin to easily create SSM documents",
   "main": "index.js",
   "repository": {

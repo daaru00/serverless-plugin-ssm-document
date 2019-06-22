@@ -21,11 +21,6 @@ class ServerlessPlugin {
       return
     }
 
-    if (Array.isArray(ssmDocuments) === false) {
-      this.serverless.cli.log(`[warn] ssmDocuments config is not an array`)
-      return
-    }
-
     for (const documentName in ssmDocuments) {
       if (ssmDocuments.hasOwnProperty(documentName)) {
         const documentConfig = ssmDocuments[documentName]
@@ -40,7 +35,7 @@ class ServerlessPlugin {
           continue
         }
 
-        const scriptContent = fs.readFileSync(documentConfig.scriptFile)
+        const scriptContent = fs.readFileSync(documentConfig.scriptFile).toString()
         const schema = {
           'Type': 'AWS::SSM::Document',
           'Properties': {
@@ -59,10 +54,13 @@ class ServerlessPlugin {
                 }
               ]
             },
-            'DocumentType': 'Command'
-          },
-          'Tags': {
-            'Name': documentConfig.name || documentName
+            'DocumentType': 'Command',
+            'Tags': [
+              {
+                'Key': 'Name',
+                'Value': documentConfig.name || documentName
+              }
+            ]
           }
         }
 
@@ -103,7 +101,7 @@ class ServerlessPlugin {
           'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/${DocumentId}',
           {
             'DocumentId': {
-              'Ref': CFKey
+              'Ref': `Command${CFKey}`
             }
           }
         ]
