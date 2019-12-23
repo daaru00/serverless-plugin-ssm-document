@@ -23,37 +23,84 @@ plugins:
   - serverless-plugin-ssm-document
 
 custom:
-  skipSSMDocumentsPolicy: false # disable IAM role manipulation to execute commands
   ssmDocuments:
+
+    dropCache:
+      description: Drop system cache # document description
+      workingDirectory: /tmp # working directory used by command
+      scriptFile: ./ssm/dropCache/script.sh
+      schemaVersion: '2.2'
+      tags:
+        - Key: MyTagKey
+          Value: MyTagValue
+
     cleanCache:
-      name: ${self:provider.stage, opt:stage}-CleanCache # document name, default is key config name (e.g. cleanCache)
-      description: Clean system temporary directory # document description
-      parameters: ${file(./ssm/cleanCache/parameters.yml)} # can be an interpolated file
-      scriptFile: ./ssm/cleanCache/script.sh # script file path
+      name: ${self:provider.stage, opt:stage}-CleanCache # document name, default is key config name (e.g. CleanCache)
+      description: Clean system temporary directory 
+      parameters: 
+        Directory: # parameters can be configured here
+          type: String
+          default: test
+      scriptFile: ./ssm/cleanCache/script.sh
+    
+    checkCache:
+      name: ${self:provider.stage, opt:stage}-CheckCache
+      description: Check cache size
+      parameters: ${file(./ssm/checkCache/parameters.yml)} # or in a separate file
+      scriptFile: ./ssm/checkCache/script.sh # script file must be a valid file path
 ```
 
 ### Parameters
 
-Refer to [SSM Document Syntax for Parameters](https://docs.aws.amazon.com/en_us/systems-manager/latest/userguide/ssm-plugins.html#top-level). For example you can include an external files that contain the follow:
+Refer to [SSM Document Syntax for Parameters](https://docs.aws.amazon.com/en_us/systems-manager/latest/userguide/ssm-plugins.html#top-level). For example you can include an external file `parameters.yml` that contain the follow:
 ```yml
-# ./ssm/cleanCache/parameters.yml
-
-Path:
-  type: String
-  default: /tmp
-  allowedPattern: "^.*\/$"
-  description: "(Optional) Temporary directory, must not end with a slash."
+Directory: # parameter name (is the key of config object)
+  type: String # parameter type
+  default: test # parameter default value
+  allowedPattern: "^(?!\/).*.[^\/]$" # regular expression to filter value
+  description: "(Optional) Temporary directory, must not start or end with a slash." # parameter description
 ```
+please prepend '(Optional) ' to optional parameters description.
 
 ### Script file
 
-Script file can be a simple shell script, will be included using [aws-runShellScript plugin](https://docs.aws.amazon.com/en_us/systems-manager/latest/userguide/ssm-plugins.html#aws-runShellScript).
-
+Script file can be a simple shell script, it will be executed using [aws-runShellScript plugin](https://docs.aws.amazon.com/en_us/systems-manager/latest/userguide/ssm-plugins.html#aws-runShellScript).
 ```bash
 #!/bin/bash
-# ./ssm/cleanCache/script.sh
 
-echo "$(date +'%F-%T') executing clean tmp directory"
-rm -rf {{ CacheTypes }}/*
-echo "$(date +'%F-%T') tmp directory clean completed"
+echo "$(date +'%F-%T') executing tmp directory cleaning.."
+rm -rf /tmp/{{ Directory }}/*
+echo "$(date +'%F-%T') tmp directory '{{ Directory }}' cleaned successfully!"
+```
+interpolate a parameter using `{{ }}` syntax and refer parameter by its own name `{{ ParameterName }}`.
+
+## Resources Created
+
+This plugin will create one [AWS::SSM::Document](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-document.html) for each `ssmDocuments` configurations keys. 
+
+CloudFormation resources can be referenced using your configuration key name, converted in camel-case (`my-command` -> `MyCommand`) and "SSMDocument" appended to it. For example:
+```yaml
+custom:
+  ssmDocuments:
+    cleanCache:
+      # document configurations
+```
+will create the follow resource:
+```js
+{
+  "Resources": {
+    "CleanCacheSSMDocument": {
+      // document configurations
+    }
+  }
+}
+```
+can be referenced in this way:
+```yaml
+iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - ssm:SendCommand
+    Resource:
+      Ref: CleanCacheSSMDocument
 ```
