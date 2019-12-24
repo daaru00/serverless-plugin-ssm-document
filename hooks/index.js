@@ -1,5 +1,4 @@
-const beforePackageFinalizeController = require('./beforePackageFinalize')
-
 module.exports = {
-  beforePackageFinalize: beforePackageFinalizeController
+  beforePackageFinalize: require('./beforePackageFinalize'),
+  deployFinalize: require('./deployFinalize')
 }

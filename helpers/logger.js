@@ -7,7 +7,8 @@ module.exports = class Logger {
    */
   constructor (sls, serviceName) {
     this.sls = sls
-    this.serviceName = serviceName || 'Microservices'
+    this.serviceName = serviceName || 'SSM Document'
+    this.debugEnabled = process.env.DEBUG === 'yes'
   }
 
   /**
@@ -17,9 +18,23 @@ module.exports = class Logger {
    */
   log (msg, opts) {
     this.sls.cli.log(msg, this.serviceName, {
-      color: 'white',
+      color: 'yellow',
       bold: false,
       ...opts
+    })
+  }
+
+  /**
+   * Debug message
+   *
+   * @param {string} msg
+   */
+  debug (msg) {
+    if (this.debugEnabled !== true) return
+
+    this.log(msg, {
+      bold: false,
+      color: 'white'
     })
   }
 

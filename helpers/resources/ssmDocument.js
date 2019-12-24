@@ -1,4 +1,4 @@
-module.exports = class S3Bucket {
+module.exports = class SSMDocument {
   /**
    * Constructor
    *
@@ -11,7 +11,7 @@ module.exports = class S3Bucket {
     this.description = description
     this.parameters = parameters || {}
     this.schemaVersion = schemaVersion ||  '2.2'
-    this.tags = tags || [] // array of {'Key': 'tag key', Value: 'tag value'}
+    this.tags = tags || {} // {key: value}
   }
 
   /**
@@ -22,9 +22,9 @@ module.exports = class S3Bucket {
   toCloudFormationObject () {
     return {
       'Type': 'AWS::SSM::Document',
-      'DocumentType': 'Command',
       'Properties': {
         'Name': this.documentName,
+        'DocumentType': 'Command',
         'Content': {
           'schemaVersion': this.schemaVersion,
           'description': this.description,
@@ -40,7 +40,7 @@ module.exports = class S3Bucket {
             }
           ]
         },
-        'Tags': this.tags
+        'Tags': Object.keys(this.tags).map(key => ({'Key': key, 'Value': this.tags[key]}))
       }
     }
   }
