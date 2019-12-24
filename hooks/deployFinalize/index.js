@@ -26,13 +26,15 @@ module.exports = {
           continue
         }
         const document = new SSMDocument({provider: this.provider, name: documentConfig.name})
-        const currentAccountIds = await document.getPermissionAccountIds()
+        let currentAccountIds = await document.getPermissionAccountIds()
+        currentAccountIds = currentAccountIds.map(currentAccountId => currentAccountId.toString())
+        documentConfig.accountIds = documentConfig.accountIds.map(accountId => accountId.toString())
         
         // Elaborate account ids to add
         const accountToAdd = []
         for (const accountId of documentConfig.accountIds) {
           if (currentAccountIds.includes(accountId) === false) {
-            accountToAdd.push(accountId.toString())
+            accountToAdd.push(accountId)
             this.logger.debug(`Document ${documentConfig.name} permission for account id '${accountId}' need to be added`)
           }
         }
@@ -41,13 +43,13 @@ module.exports = {
         const accountToDelete = []
         for (const accountId of currentAccountIds) {
           if (documentConfig.accountIds.includes(accountId) === false) {
-            accountToDelete.push(accountId.toString())
+            accountToDelete.push(accountId)
             this.logger.debug(`Document ${documentConfig.name} permission for account id '${accountId}' need to be deleted`)
           }
         }
 
         // Save permissions
-        if (accountToAdd.length === 0 && accountToDelete === 0) {
+        if (accountToAdd.length === 0 && accountToDelete.length === 0) {
           this.logger.debug(`Document ${documentConfig.name} permissions are in sync, skipping..`)
           continue
         }
