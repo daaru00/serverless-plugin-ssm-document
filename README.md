@@ -144,6 +144,24 @@ iamRoleStatements:
       Ref: CleanCacheSSMDocument
 ```
 
+## IAM Permissions
+
+IAM user that perform deploy need to have the following policy attached:
+```json
+{
+  "Sid": "DeploySSMDocumentPermission",
+  "Effect": "Allow",
+  "Action": [
+      "ssm:DescribeDocument",
+      "ssm:DescribeDocumentPermission",
+      "ssm:CreateDocument",
+      "ssm:ModifyDocumentPermission",
+      "ssm:DeleteDocument"
+  ],
+  "Resource": "*"
+}
+```
+
 ## Debug
 
 To enable debug output set `DEBUG` environment variable to "yes" and execute package command:
