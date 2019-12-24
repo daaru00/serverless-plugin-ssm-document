@@ -41,7 +41,7 @@ module.exports = {
           continue
         }
         documents.push(document)
-        this.logger.debug(`Document ${documentConfig.name} permissions saved!`)
+        this.logger.debug(`Document ${documentConfig.name} permissions removed!`)
       }
     }
     this.logger.debug(`Total of ${documents.length} documents account id permissions removed`)
