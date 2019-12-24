@@ -22,52 +22,50 @@ module.exports = {
     const documents = []
     this.logger.log('Loading documents...')
     for (const documentName in this.config) {
-      if (this.config.hasOwnProperty(documentName)) {
-        const documentConfig = this.config[documentName]
+      const documentConfig = this.config[documentName]
 
-        // Load script file
+      // Load script file
         
-        if (!documentConfig.scriptFile) {
-          this.logger.warn(`Document ${documentName} does not have 'scriptFile' defined`)
-          continue
-        }
+      if (!documentConfig.scriptFile) {
+        this.logger.warn(`Document ${documentName} does not have 'scriptFile' defined`)
+        continue
+      }
 
-        if (fs.lstatSync(documentConfig.scriptFile).isFile() === false) {
-          this.logger.warn(`Script file ${documentConfig.scriptFile} not found or is not a valid file`)
-          continue
-        }
-        const scriptContent = fs.readFileSync(documentConfig.scriptFile).toString()
+      if (fs.lstatSync(documentConfig.scriptFile).isFile() === false) {
+        this.logger.warn(`Script file ${documentConfig.scriptFile} not found or is not a valid file`)
+        continue
+      }
+      const scriptContent = fs.readFileSync(documentConfig.scriptFile).toString()
 
-        // Create SSM Document
+      // Create SSM Document
         
-        documentConfig.name = documentConfig.name || this.providerConfig.stage + _.upperFirst(_.camelCase(documentName))
-        documentConfig.description = documentConfig.description || `Command ${documentName}`
-        documentConfig.tags = documentConfig.tags || {}
+      documentConfig.name = documentConfig.name || this.providerConfig.stage + _.upperFirst(_.camelCase(documentName))
+      documentConfig.description = documentConfig.description || `Command ${documentName}`
+      documentConfig.tags = documentConfig.tags || {}
 
-        const document = new SsmDocumentResource({
-          documentName: documentConfig.name, 
-          workingDirectory: documentConfig.workingDirectory,
-          runCommand: scriptContent.split(os.EOL),
-          description: documentConfig.description,
-          parameters: documentConfig.parameters,
-          schemaVersion: documentConfig.schemaVersion,
-          tags: {...this.providerConfig.tags, ...documentConfig.tags}
-        })
-        documents.push(document)
-        this.logger.debug(`Document loaded: ${documentConfig.name}`)
+      const document = new SsmDocumentResource({
+        documentName: documentConfig.name, 
+        workingDirectory: documentConfig.workingDirectory,
+        runCommand: scriptContent.split(os.EOL),
+        description: documentConfig.description,
+        parameters: documentConfig.parameters,
+        schemaVersion: documentConfig.schemaVersion,
+        tags: {...this.providerConfig.tags, ...documentConfig.tags}
+      })
+      documents.push(document)
+      this.logger.debug(`Document loaded: ${documentConfig.name}`)
 
-        // Attach resource to CloudFormation template
+      // Attach resource to CloudFormation template
 
-        const documentResourceId = _.upperFirst(_.camelCase(documentName)) + 'SSMDocument'
-        this.cloudFormationTemplate.Resources[documentResourceId] = document.toCloudFormationObject()
+      const documentResourceId = _.upperFirst(_.camelCase(documentConfig.name || documentName)) + 'SSMDocument'
+      this.cloudFormationTemplate.Resources[documentResourceId] = document.toCloudFormationObject()
         
-        // Declare output
+      // Declare output
 
-        this.cloudFormationTemplate.Outputs[documentResourceId] = {
-          'Description': `${documentConfig.description}`,
-          'Value': {
-            'Ref': documentResourceId
-          }
+      this.cloudFormationTemplate.Outputs[documentResourceId] = {
+        'Description': `${documentConfig.description}`,
+        'Value': {
+          'Ref': documentResourceId
         }
       }
     }

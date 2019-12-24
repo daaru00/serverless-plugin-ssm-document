@@ -25,17 +25,11 @@ module.exports = {
           this.logger.debug(`Document ${documentConfig.name} has no account permissions, skipping..`)
           continue
         }
-        const document = new SSMDocument({provider: this.provider, name: documentConfig.name})
-        const currentAccountIds = await document.getPermissionAccountIds()
-
+        
         // Delete all permissions
-        if (currentAccountIds.length === 0) {
-          this.logger.debug(`Document ${documentConfig.name} has no deployed account permissions, skipping..`)
-          continue
-        }
-
+        const document = new SSMDocument({provider: this.provider, name: documentConfig.name})
         try {
-          await document.modifyPermissionsAccountIds([], currentAccountIds)
+          await document.deletePermissionsAccountIds()
         } catch (err) {
           this.logger.error(`Document ${documentConfig.name} error: ${err.message}`)
           continue
