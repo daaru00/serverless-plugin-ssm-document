@@ -1,4 +1,5 @@
 module.exports = {
   beforePackageFinalize: require('./beforePackageFinalize'),
-  deployFinalize: require('./deployFinalize')
+  deployFinalize: require('./deployFinalize'),
+  beforeRemove: require('./beforeRemove')
 }

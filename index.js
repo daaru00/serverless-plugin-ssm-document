@@ -19,7 +19,8 @@ class ServerlessPlugin {
 
     this.hooks = {
       'before:package:finalize': hooks.beforePackageFinalize.execute.bind(this),
-      'deploy:finalize': hooks.deployFinalize.execute.bind(this)
+      'deploy:finalize': hooks.deployFinalize.execute.bind(this),
+      'before:remove:remove': hooks.beforeRemove.execute.bind(this)
     }
   }
 }
