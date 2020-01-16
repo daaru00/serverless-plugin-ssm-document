@@ -47,7 +47,7 @@ module.exports = class SSMDocument {
    * Delete permissions
    */
   async deletePermissionsAccountIds() {
-    const currentAccountIds = this.getPermissionAccountIds()
+    const currentAccountIds = await this.getPermissionAccountIds()
     if (currentAccountIds.length === 0) { 
       return
     }
