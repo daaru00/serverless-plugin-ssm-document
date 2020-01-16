@@ -20,9 +20,15 @@ module.exports = class CloudFormationStack {
     if (this.name === undefined) {
       return []
     }
-    const deployedResources = await this.provider.request('CloudFormation', 'listStackResources', {
-      StackName: this.name
-    })
+    let deployedResources = {} 
+    try {
+      deployedResources = await this.provider.request('CloudFormation', 'listStackResources', {
+        StackName: this.name
+      })
+    } catch (error) {
+      return []
+    }
+    
     let resources = deployedResources.StackResourceSummaries || []
     if (typeFilter !== undefined) {
       resources = resources.filter(resource => resource.ResourceType === typeFilter)
