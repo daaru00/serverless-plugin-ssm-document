@@ -42,6 +42,7 @@ module.exports = {
       documentConfig.tags = documentConfig.tags || {}
 
       const document = new SsmDocumentResource({
+        documentName: documentConfig.name, 
         workingDirectory: documentConfig.workingDirectory,
         runCommand: scriptContent.split(os.EOL),
         description: documentConfig.description,
