@@ -37,14 +37,11 @@ module.exports = {
       }
       const scriptContent = fs.readFileSync(documentConfig.scriptFile).toString()
 
-      // Create SSM Document
-        
-      documentConfig.name = documentConfig.name || this.providerConfig.stage + _.upperFirst(_.camelCase(documentName))
+      // Create SSM Document        
       documentConfig.description = documentConfig.description || `Command ${documentName}`
       documentConfig.tags = documentConfig.tags || {}
 
       const document = new SsmDocumentResource({
-        documentName: documentConfig.name, 
         workingDirectory: documentConfig.workingDirectory,
         runCommand: scriptContent.split(os.EOL),
         description: documentConfig.description,
@@ -53,7 +50,7 @@ module.exports = {
         tags: {...this.providerConfig.tags, ...documentConfig.tags}
       })
       documents.push(document)
-      this.logger.debug(`Document loaded: ${documentConfig.name}`)
+      this.logger.debug(`Document loaded: ${documentConfig.name || documentName}`)
 
       // Attach resource to CloudFormation template
 
